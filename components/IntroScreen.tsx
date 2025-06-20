@@ -13,6 +13,7 @@ import { SvgXml } from 'react-native-svg';
 interface IntroScreenProps {
   onFinish: () => void;
   duration?: number;
+  children?: React.ReactNode; // Contenu principal à précharger
 }
 
 // 🎯 Logo SVG de La Plateforme_ (vectoriel, parfaitement net)
@@ -60,18 +61,32 @@ const generateCubes = () => {
 export const IntroScreen: React.FC<IntroScreenProps> = ({
   onFinish,
   duration = 3000,
+  children,
 }) => {
-  const [isVisible, setIsVisible] = useState(true);
   const [showCubes, setShowCubes] = useState(false);
+  const [isContentReady, setIsContentReady] = useState(false);
+  
+  // 🎭 Animation de transition finale
+  const introOpacity = useSharedValue(1);
   
   const cubes = generateCubes();
 
   const handleFinish = () => {
-    setIsVisible(false);
-    onFinish();
+    // 🎭 Transition fluide : fondu de l'intro vers le contenu
+    introOpacity.value = withTiming(0, {
+      duration: 300,
+      easing: Easing.out(Easing.quad),
+    }, (finished) => {
+      if (finished) {
+        runOnJS(onFinish)();
+      }
+    });
   };
 
   useEffect(() => {
+    // 🚀 Préchargement immédiat du contenu en arrière-plan
+    setIsContentReady(true);
+    
     // 📅 Phase 1 : Affichage statique du logo pendant 1 seconde
     const logoTimer = setTimeout(() => {
       setShowCubes(true);
@@ -96,32 +111,46 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({
     }
   }, [showCubes, cubes]);
 
-  if (!isVisible) {
-    return null;
-  }
+  // 🎨 Style animé pour la couche intro
+  const introAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: introOpacity.value,
+  }));
 
   return (
-    <View className="relative flex-1" style={{ backgroundColor: '#0062FF' }}>
-      {/* 🎯 Logo centré (affichage statique) */}
-      <View className="flex-1 items-center justify-center px-8">
-        <SvgXml
-          xml={logoSvg}
-          width={280}
-          height={42}
-        />
-      </View>
+    <View className="relative flex-1">
+      {/* 🎯 Contenu principal (préchargé en arrière-plan) */}
+      {isContentReady && children && (
+        <View className="absolute inset-0">
+          {children}
+        </View>
+      )}
 
-      {/* 🧩 Grille de cubes blancs animés */}
-      {showCubes && cubes.map((cube) => (
-        <CubeComponent
-          key={cube.id}
-          left={cube.left}
-          top={cube.top}
-          width={CUBE_SIZE}
-          height={CUBE_SIZE}
-          delay={cube.delay}
-        />
-      ))}
+      {/* 🎭 Couche d'animation (par-dessus le contenu) */}
+      <Animated.View 
+        className="absolute inset-0" 
+        style={[{ backgroundColor: '#0062FF' }, introAnimatedStyle]}
+      >
+        {/* 🎯 Logo centré (affichage statique) */}
+        <View className="flex-1 items-center justify-center px-8">
+          <SvgXml
+            xml={logoSvg}
+            width={280}
+            height={42}
+          />
+        </View>
+
+        {/* 🧩 Grille de cubes blancs animés */}
+        {showCubes && cubes.map((cube) => (
+          <CubeComponent
+            key={cube.id}
+            left={cube.left}
+            top={cube.top}
+            width={CUBE_SIZE}
+            height={CUBE_SIZE}
+            delay={cube.delay}
+          />
+        ))}
+      </Animated.View>
     </View>
   );
 };

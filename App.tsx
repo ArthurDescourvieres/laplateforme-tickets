@@ -13,17 +13,23 @@ export default function App() {
   const [showIntro, setShowIntro] = useState(true);
   const [showTestMode, setShowTestMode] = useState(false);
 
-  // Afficher l'intro si elle est active
-  if (showIntro) {
-    return <IntroScreen onFinish={() => setShowIntro(false)} duration={4000} />;
-  }
-
-
-  return (
+  // 🎯 Contenu principal de l'application
+  const MainContent = () => (
     <View className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
       <StatusBar style={isDark ? 'light' : 'dark'} />
-    
       <Text className='dark:text-black mt-10 text-center text-2xl font-bold'>Hello</Text>
     </View>
   );
+
+  // 🚀 Intro avec préchargement du contenu en arrière-plan
+  if (showIntro) {
+    return (
+      <IntroScreen onFinish={() => setShowIntro(false)} duration={4000}>
+        <MainContent />
+      </IntroScreen>
+    );
+  }
+
+  // Une fois l'intro terminée, afficher directement le contenu principal
+  return <MainContent />;
 }
