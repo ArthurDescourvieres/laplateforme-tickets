@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { View, Dimensions } from 'react-native';
 import Animated, { 
   useAnimatedStyle, 
   useSharedValue, 
   withTiming, 
   withDelay,
   Easing,
-  interpolate,
   runOnJS
 } from 'react-native-reanimated';
 import { SvgXml } from 'react-native-svg';
@@ -16,7 +15,7 @@ interface IntroScreenProps {
   duration?: number;
 }
 
-// Contenu SVG du logo et du slogan
+// 🎯 Logo SVG de La Plateforme_ (vectoriel, parfaitement net)
 const logoSvg = `<svg width="6587" height="616" viewBox="0 0 6587 616" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M1343.77 0H1228.41V603.281H1560.55V502.101H1343.77V0Z" fill="white"/>
 <path d="M1940.86 202.358C1940.86 225.124 1942.13 232.712 1942.13 239.036H1938.32C1916.77 199.829 1867.33 173.27 1803.95 173.27C1684.78 173.27 1596.04 264.331 1596.04 394.599C1596.04 524.867 1679.71 615.928 1798.87 615.928C1862.26 615.928 1914.24 588.104 1938.32 545.103H1942.13C1940.86 553.956 1940.86 565.339 1940.86 584.31V603.281H2043.54V185.917H1940.86V202.358ZM1822.96 516.014C1758.31 516.014 1710.14 465.424 1710.14 393.334C1710.14 321.244 1758.31 271.919 1822.96 271.919C1888.88 271.919 1937.05 321.244 1937.05 393.334C1935.79 465.424 1888.88 516.014 1822.96 516.014Z" fill="white"/>
@@ -33,59 +32,39 @@ const logoSvg = `<svg width="6587" height="616" viewBox="0 0 6587 616" fill="non
 <path d="M0 0V352.862H138.18V513.484C126.771 510.955 119.164 504.631 107.755 495.778C86.204 479.336 55.779 455.306 1.26769 455.306V555.22C22.8187 555.22 30.4249 561.544 48.1728 574.192C69.7238 590.633 100.149 614.663 154.66 614.663C210.439 614.663 239.596 591.898 261.147 574.192C277.628 561.544 286.501 555.22 308.052 555.22C329.603 555.22 337.21 561.544 354.958 574.192C376.509 590.633 406.933 614.663 461.445 614.663C515.956 614.663 546.381 591.898 567.932 574.192C584.412 561.544 593.286 555.22 614.837 555.22C636.388 555.22 643.995 561.544 661.742 574.192C683.293 590.633 713.718 614.663 768.23 614.663C824.009 614.663 853.166 591.898 874.717 574.192C891.197 561.544 900.071 555.22 921.622 555.22V455.306C865.843 455.306 836.686 478.071 815.135 495.778C803.726 504.631 796.119 510.955 784.71 513.484V352.862H921.622V0H0ZM682.026 470.483C664.278 461.63 642.727 455.306 613.57 455.306C557.79 455.306 528.633 478.071 507.082 495.778C490.602 508.425 481.728 514.749 460.177 514.749C438.626 514.749 431.02 508.425 413.272 495.778C391.721 479.336 361.296 455.306 306.785 455.306C277.628 455.306 256.077 461.63 238.329 470.483V352.862H682.026V470.483ZM100.149 101.179H818.938V252.948H100.149V101.179Z" fill="white"/>
 </svg>`;
 
-const sloganSvg = `<svg width="6570" height="339" viewBox="0 0 6570 339" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M0.267578 7.63867H37.0311V228.968H138.448V261.851H0.267578V7.63867Z" fill="white"/>
-<path d="M243.667 80.9937C275.36 80.9937 298.178 96.1706 305.785 113.877H307.052C307.052 110.083 305.785 106.288 305.785 96.1705V87.3173H338.745V261.851H305.785V249.204C305.785 241.616 305.785 236.556 307.052 231.497H305.785C296.911 251.733 272.824 266.91 242.399 266.91C189.156 266.91 153.66 227.703 153.66 174.584C154.928 120.2 191.691 80.9937 243.667 80.9937ZM305.785 173.32C305.785 137.907 281.698 112.612 248.738 112.612C215.777 112.612 191.691 137.907 191.691 173.32C191.691 208.732 215.777 234.027 248.738 234.027C281.698 234.027 305.785 208.732 305.785 173.32Z" fill="white"/>
-<path d="M554.255 80.9937C584.68 80.9937 608.766 94.9059 617.64 113.877H618.908C618.908 110.083 617.64 105.024 617.64 97.4353V87.3173H650.601V339H520.027V307.382H613.837V246.675C613.837 237.821 613.837 234.027 615.105 228.968H613.837C606.231 246.674 583.412 260.587 554.255 260.587C504.814 260.587 466.783 222.644 466.783 170.79C469.319 118.936 504.814 80.9937 554.255 80.9937ZM506.082 170.79C506.082 203.673 530.169 227.703 561.861 227.703C593.554 227.703 617.64 203.673 617.64 170.79C617.64 137.907 594.822 113.877 561.861 113.877C530.169 113.877 506.082 137.907 506.082 170.79Z" fill="white"/>
-<path d="M787.513 87.3174V120.201H743.143V261.851H706.38V87.3174H787.513Z" fill="white"/>
-<path d="M895.268 80.9937C926.961 80.9937 949.779 96.1706 957.385 113.877H958.653C958.653 110.083 957.385 106.288 957.385 96.1705V87.3173H990.346V261.851H957.385V249.204C957.385 241.616 957.386 236.556 958.653 231.497H957.385C948.512 251.733 924.425 266.91 894 266.91C840.757 266.91 805.261 227.703 805.261 174.584C806.528 120.2 843.292 80.9937 895.268 80.9937ZM957.385 173.32C957.385 137.907 933.299 112.612 900.339 112.612C867.378 112.612 843.292 137.907 843.292 173.32C843.292 208.732 867.378 234.027 900.339 234.027C933.299 234.027 957.385 208.732 957.385 173.32Z" fill="white"/>
-<path d="M1115.85 80.9937C1158.95 80.9937 1189.38 108.818 1189.38 150.554V260.587H1152.61V150.554C1152.61 129.054 1137.4 113.877 1115.85 113.877C1094.3 113.877 1079.09 129.054 1079.09 150.554V261.851H1042.32V150.554C1043.59 108.818 1072.75 80.9937 1115.85 80.9937Z" fill="white"/>
-<path d="M1317.41 80.9936C1342.77 80.9936 1368.12 92.3763 1378.26 110.083H1379.53C1378.26 106.288 1378.26 102.494 1378.26 92.3761V7.63867H1415.03V261.851H1382.07V250.469C1382.07 242.88 1382.07 237.821 1383.33 232.762H1382.07C1370.66 254.263 1346.57 266.91 1317.41 266.91C1265.44 266.91 1229.94 228.968 1229.94 174.584C1229.94 120.2 1265.44 80.9936 1317.41 80.9936ZM1379.53 173.32C1379.53 137.907 1355.45 112.612 1322.48 112.612C1289.52 112.612 1265.44 137.907 1265.44 173.32C1265.44 208.732 1289.52 234.027 1322.48 234.027C1355.45 234.027 1379.53 208.732 1379.53 173.32Z" fill="white"/>
-<path d="M1549.4 266.91C1494.89 266.91 1455.59 227.703 1455.59 174.584C1455.59 120.2 1494.89 82.2583 1548.14 82.2583C1598.84 82.2583 1634.34 121.465 1634.34 174.584C1634.34 178.378 1634.34 184.702 1633.07 187.231H1493.62C1498.7 216.32 1518.98 234.027 1549.4 234.027C1570.96 234.027 1586.17 226.438 1598.84 209.997L1620.4 231.497C1602.65 255.527 1578.56 266.91 1549.4 266.91ZM1493.62 160.672H1597.58C1595.04 132.848 1574.76 113.877 1546.87 113.877C1518.98 113.877 1498.7 131.583 1493.62 160.672Z" fill="white"/>
-<path d="M1842.24 266.91C1787.73 266.91 1748.43 227.703 1748.43 174.584C1748.43 120.2 1787.73 82.2583 1840.98 82.2583C1891.68 82.2583 1927.18 121.465 1927.18 174.584C1927.18 178.378 1927.18 184.702 1925.91 187.232H1786.46C1791.54 216.32 1811.82 234.027 1842.24 234.027C1863.79 234.027 1879.01 226.438 1891.68 209.997L1913.24 231.497C1896.76 255.527 1872.67 266.91 1842.24 266.91ZM1787.73 160.672H1891.68C1889.15 132.848 1868.87 113.877 1840.98 113.877C1811.82 113.877 1792.8 131.583 1787.73 160.672ZM1851.12 0.050293H1892.95L1848.58 56.9635H1814.35L1851.12 0.050293Z" fill="white"/>
-<path d="M2097.05 139.172C2086.91 123.995 2071.7 113.877 2048.88 113.877C2015.92 113.877 1993.1 139.171 1993.1 174.584C1993.1 209.997 2015.92 235.292 2048.88 235.292C2071.7 235.292 2088.18 223.909 2098.32 208.732L2119.87 230.233C2105.93 251.733 2080.57 268.175 2048.88 268.175C1994.37 268.175 1955.07 228.968 1955.07 175.849C1955.07 122.73 1995.64 83.5229 2048.88 83.5229C2079.31 83.5229 2103.39 96.1704 2119.87 118.936L2097.05 139.172Z" fill="white"/>
-<path d="M2141.42 174.584C2141.42 121.465 2180.72 82.2583 2233.97 82.2583C2287.21 82.2583 2327.78 121.465 2327.78 174.584C2327.78 227.703 2288.48 266.91 2233.97 266.91C2180.72 266.91 2141.42 227.703 2141.42 174.584ZM2289.74 173.319C2289.74 137.907 2266.93 112.612 2233.97 112.612C2201 112.612 2178.19 137.907 2178.19 173.319C2178.19 208.732 2201 234.027 2233.97 234.027C2266.93 234.027 2289.74 208.732 2289.74 173.319Z" fill="white"/>
-<path d="M2368.34 7.63867H2405.11V228.968H2448.21V260.587H2368.34V7.63867Z" fill="white"/>
-<path d="M2558.5 266.91C2503.99 266.91 2464.69 227.703 2464.69 174.584C2464.69 120.2 2503.99 82.2583 2557.23 82.2583C2607.94 82.2583 2643.43 121.465 2643.43 174.584C2643.43 178.378 2643.43 184.702 2642.17 187.231H2502.72C2507.79 216.32 2528.07 234.027 2558.5 234.027C2580.05 234.027 2595.26 226.438 2607.94 209.997L2629.49 231.497C2613.01 255.527 2588.92 266.91 2558.5 266.91ZM2503.99 160.672H2607.94C2605.4 132.848 2585.12 113.877 2557.23 113.877C2528.07 113.877 2507.79 131.583 2503.99 160.672Z" fill="white"/>
-<path d="M2848.8 80.9936C2874.16 80.9936 2899.51 92.3763 2909.65 110.083H2910.92C2909.65 106.288 2909.65 102.494 2909.65 92.3761V7.63867H2946.42V261.851H2913.46V250.469C2913.46 242.88 2913.46 237.821 2914.72 232.762H2913.46C2902.05 254.263 2877.96 266.91 2848.8 266.91C2796.83 266.91 2761.33 228.968 2761.33 174.584C2761.33 120.2 2795.56 80.9936 2848.8 80.9936ZM2910.92 173.32C2910.92 137.907 2886.83 112.612 2853.87 112.612C2820.91 112.612 2796.83 137.907 2796.83 173.32C2796.83 208.732 2820.91 234.027 2853.87 234.027C2886.83 234.027 2910.92 208.732 2910.92 173.32Z" fill="white"/>
-<path d="M3069.38 266.91C3027.55 266.91 2997.12 237.821 2997.12 196.085V87.3174H3033.89V197.35C3033.89 218.85 3049.1 234.027 3069.38 234.027C3090.93 234.027 3104.88 218.85 3104.88 197.35V87.3174H3141.64V197.35C3141.64 237.821 3111.22 266.91 3069.38 266.91Z" fill="white"/>
-<path d="M3350.81 80.9937C3393.92 80.9937 3424.34 108.818 3424.34 150.554V260.587H3387.58V150.554C3387.58 129.054 3372.37 113.877 3350.81 113.877C3329.26 113.877 3314.05 129.054 3314.05 150.554V261.851H3277.29V150.554C3278.55 108.818 3308.98 80.9937 3350.81 80.9937Z" fill="white"/>
-<path d="M3546.04 266.91C3504.21 266.91 3473.78 237.821 3473.78 196.085V87.3174H3510.55V197.35C3510.55 218.85 3525.76 234.027 3546.04 234.027C3567.59 234.027 3581.54 218.85 3581.54 197.35V87.3174H3618.3V197.35C3618.3 237.821 3587.88 266.91 3546.04 266.91Z" fill="white"/>
-<path d="M3670.28 87.3174H3916.21V261.851H3879.45V118.936H3812.26V261.851H3775.5V118.936H3708.31V261.851H3671.54V87.3174H3670.28Z" fill="white"/>
-<path d="M4049.32 266.91C3994.81 266.91 3955.51 227.703 3955.51 174.584C3955.51 120.2 3994.81 82.2583 4048.05 82.2583C4098.76 82.2583 4134.26 121.465 4134.26 174.584C4134.26 178.378 4134.26 184.702 4132.99 187.232H3993.54C3998.61 216.32 4018.9 234.027 4049.32 234.027C4070.87 234.027 4086.08 226.438 4098.76 209.997L4120.31 231.497C4103.83 255.527 4079.75 266.91 4049.32 266.91ZM3994.81 160.672H4098.76C4096.23 132.848 4075.94 113.877 4048.05 113.877C4018.9 113.877 3998.61 131.583 3994.81 160.672ZM4058.19 0.050293H4100.03L4055.66 56.9635H4021.43L4058.19 0.050293Z" fill="white"/>
-<path d="M4255.96 87.3174V120.201H4211.59V261.851H4174.82V87.3174H4255.96Z" fill="white"/>
-<path d="M4286.38 36.7281C4286.38 24.0807 4296.52 15.2275 4309.2 15.2275C4321.88 15.2275 4332.02 24.0807 4332.02 36.7281C4332.02 49.3755 4321.88 58.2286 4309.2 58.2286C4295.26 58.2286 4286.38 49.3755 4286.38 36.7281ZM4290.18 261.852V87.3176H4326.95V261.852H4290.18Z" fill="white"/>
-<path d="M4454.99 80.9937C4485.41 80.9937 4508.23 92.3764 4519.64 113.877H4520.91C4519.64 110.083 4519.64 105.024 4519.64 97.4353V87.3173H4553.87V339H4517.1V250.469C4517.1 242.88 4517.1 239.086 4518.37 234.027H4517.1C4508.23 254.263 4484.14 266.91 4456.25 266.91C4405.55 266.91 4367.51 228.968 4367.51 174.584C4367.51 120.2 4405.55 80.9937 4454.99 80.9937ZM4405.55 173.32C4405.55 208.732 4429.63 234.027 4462.59 234.027C4495.55 234.027 4519.64 208.732 4519.64 173.32C4519.64 137.907 4496.82 112.612 4462.59 112.612C4429.63 113.877 4405.55 139.172 4405.55 173.32Z" fill="white"/>
-<path d="M4678.1 266.91C4636.27 266.91 4605.84 237.821 4605.84 196.085V87.3174H4642.61V197.35C4642.61 218.85 4657.82 234.027 4678.1 234.027C4699.65 234.027 4713.6 218.85 4713.6 197.35V87.3174H4750.36V197.35C4750.36 237.821 4719.94 266.91 4678.1 266.91Z" fill="white"/>
-<path d="M4882.2 266.91C4827.69 266.91 4788.39 227.703 4788.39 174.584C4788.39 120.2 4827.69 82.2583 4880.94 82.2583C4931.64 82.2583 4967.14 121.465 4967.14 174.584C4967.14 178.378 4967.14 184.702 4965.87 187.231H4826.42C4831.5 216.32 4851.78 234.027 4882.2 234.027C4903.75 234.027 4918.97 226.438 4931.64 209.997L4953.19 231.497C4936.71 255.527 4911.36 266.91 4882.2 266.91ZM4827.69 160.672H4931.64C4929.11 132.848 4908.82 113.877 4880.94 113.877C4851.78 113.877 4831.5 131.583 4827.69 160.672Z" fill="white"/>
-<path d="M5192.79 266.91C5164.9 266.91 5140.82 255.528 5131.94 237.821H5130.67C5131.94 241.615 5131.94 245.41 5131.94 254.263V339H5095.18V87.3173H5129.41V97.4353C5129.41 105.024 5129.41 110.083 5128.14 113.877H5129.41C5140.82 94.9059 5163.63 80.9937 5194.06 80.9937C5244.77 80.9937 5281.53 118.936 5281.53 173.32C5281.53 227.703 5243.5 266.91 5192.79 266.91ZM5130.67 173.32C5130.67 208.732 5154.76 234.027 5187.72 234.027C5220.68 234.027 5244.77 208.732 5244.77 173.32C5244.77 137.907 5220.68 112.612 5187.72 112.612C5153.49 113.877 5130.67 139.172 5130.67 173.32Z" fill="white"/>
-<path d="M5309.42 174.584C5309.42 121.465 5348.72 82.2583 5401.96 82.2583C5455.21 82.2583 5495.77 121.465 5495.77 174.584C5495.77 227.703 5456.47 266.91 5401.96 266.91C5348.72 266.91 5309.42 227.703 5309.42 174.584ZM5459.01 173.319C5459.01 137.907 5436.19 112.612 5403.23 112.612C5370.27 112.612 5347.45 137.907 5347.45 173.319C5347.45 208.732 5370.27 234.027 5403.23 234.027C5436.19 234.027 5459.01 208.732 5459.01 173.319Z" fill="white"/>
-<path d="M5607.33 266.91C5565.5 266.91 5535.07 237.821 5535.07 196.085V87.3174H5571.84V197.35C5571.84 218.85 5587.05 234.027 5607.33 234.027C5628.88 234.027 5642.83 218.85 5642.83 197.35V87.3174H5679.59V197.35C5679.59 237.821 5649.17 266.91 5607.33 266.91Z" fill="white"/>
-<path d="M5811.43 87.3174V120.201H5767.06V261.851H5730.3V87.3174H5811.43Z" fill="white"/>
-<path d="M5933.13 118.936H5914.12V87.3173H5933.13V41.7866H5969.89V87.3173H6016.8V118.936H5969.89V228.968H6011.73V260.587H5933.13V118.936Z" fill="white"/>
-<path d="M6038.35 174.584C6038.35 121.465 6077.65 82.2583 6130.89 82.2583C6184.14 82.2583 6224.7 121.465 6224.7 174.584C6224.7 227.703 6185.4 266.91 6130.89 266.91C6077.65 266.91 6038.35 227.703 6038.35 174.584ZM6186.67 173.319C6186.67 137.907 6163.85 112.612 6130.89 112.612C6097.93 112.612 6075.11 137.907 6075.11 173.319C6075.11 208.732 6097.93 234.027 6130.89 234.027C6163.85 234.027 6186.67 208.732 6186.67 173.319Z" fill="white"/>
-<path d="M6336.26 266.91C6294.43 266.91 6264 237.821 6264 196.085V87.3174H6300.77V197.35C6300.77 218.85 6315.98 234.027 6336.26 234.027C6357.81 234.027 6371.76 218.85 6371.76 197.35V87.3174H6408.52V197.35C6408.52 237.821 6378.1 266.91 6336.26 266.91Z" fill="white"/>
-<path d="M6508.67 154.348L6531.49 165.731C6553.04 175.849 6569.52 188.496 6569.52 216.321C6569.52 246.674 6545.43 268.175 6507.4 268.175C6470.64 268.175 6450.36 246.674 6444.02 222.644L6471.91 207.467C6474.44 221.38 6487.12 237.821 6507.4 237.821C6521.35 237.821 6532.76 230.233 6532.76 216.321C6532.76 206.203 6526.42 199.879 6509.94 192.291L6489.65 183.437C6468.1 173.32 6451.62 161.937 6451.62 132.848C6451.62 106.288 6475.71 83.5229 6508.67 83.5229C6541.63 83.5229 6560.65 101.229 6569.52 122.73L6542.9 137.907C6536.56 123.995 6525.15 113.877 6508.67 113.877C6494.72 113.877 6485.85 121.465 6485.85 132.848C6485.85 140.436 6492.19 146.76 6508.67 154.348Z" fill="white"/>
-</svg>`;
+// 🧩 Configuration de la grille de cubes carrés
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+const CUBE_SIZE = Math.min(screenWidth, screenHeight) / 10; // Cubes carrés parfaits
+const COLS = Math.ceil(screenWidth / CUBE_SIZE);   // Colonnes nécessaires pour couvrir la largeur
+const ROWS = Math.ceil(screenHeight / CUBE_SIZE);  // Rangées nécessaires pour couvrir la hauteur
+
+// 🎯 Génération des données de cubes avec positions et délais
+const generateCubes = () => {
+  const cubes = [];
+  for (let row = 0; row < ROWS; row++) {
+    for (let col = 0; col < COLS; col++) {
+      cubes.push({
+        id: `${row}-${col}`,
+        row,
+        col,
+        left: col * CUBE_SIZE,
+        top: row * CUBE_SIZE,
+        // 🌊 Délai diagonal pour effet de propagation élégant
+        delay: (row + col) * 60, // 60ms entre chaque cube sur la diagonale
+      });
+    }
+  }
+  return cubes;
+};
 
 export const IntroScreen: React.FC<IntroScreenProps> = ({
   onFinish,
-  duration = 4000,
+  duration = 3000,
 }) => {
   const [isVisible, setIsVisible] = useState(true);
+  const [showCubes, setShowCubes] = useState(false);
   
-  // 🎯 Animations pour le logo principal
-  const logoOpacity = useSharedValue(0);
-  const logoTranslateY = useSharedValue(20);
-  
-  // 🎯 Animation pour la révélation progressive du slogan
-  const sloganReveal = useSharedValue(0); // 0 = invisible, 1 = complètement visible
-  
-  // 🚀 Nouvelles animations pour l'effet de zoom spectaculaire
-  const logoScale = useSharedValue(1);
-  const logoZoomOpacity = useSharedValue(1);
-  const sloganZoomOpacity = useSharedValue(1);
-  const containerScale = useSharedValue(1);
+  const cubes = generateCubes();
 
   const handleFinish = () => {
     setIsVisible(false);
@@ -93,91 +72,29 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({
   };
 
   useEffect(() => {
-    // 🎯 Phase 1 : Animation du logo principal (0-1200ms)
-    logoOpacity.value = withDelay(400, withTiming(1, { 
-      duration: 1200, 
-      easing: Easing.out(Easing.cubic) 
-    }));
-    
-    logoTranslateY.value = withDelay(400, withTiming(0, { 
-      duration: 1200, 
-      easing: Easing.out(Easing.cubic) 
-    }));
+    // 📅 Phase 1 : Affichage statique du logo pendant 1 seconde
+    const logoTimer = setTimeout(() => {
+      setShowCubes(true);
+    }, 1000);
 
-    // 🎯 Phase 2 : Révélation progressive du slogan (1700-2900ms)
-    sloganReveal.value = withDelay(1700, withTiming(1, { 
-      duration: 1200, 
-      easing: Easing.out(Easing.cubic) 
-    }));
+    return () => clearTimeout(logoTimer);
+  }, []);
 
-    // 🚀 Phase 3 : Effet de zoom spectaculaire (3200ms+)
-    const startZoomDelay = 3200;
-    
-    // Le logo commence à grossir de manière exponentielle
-    logoScale.value = withDelay(startZoomDelay, withTiming(5, {
-      duration: 800,
-      easing: Easing.in(Easing.quad)
-    }));
-    
-    // Le container entier se met à grossir pour amplifier l'effet
-    containerScale.value = withDelay(startZoomDelay + 200, withTiming(1.5, {
-      duration: 600,
-      easing: Easing.in(Easing.cubic)
-    }));
-    
-    // Le slogan disparaît en fondu
-    sloganZoomOpacity.value = withDelay(startZoomDelay, withTiming(0, {
-      duration: 400,
-      easing: Easing.out(Easing.quad)
-    }));
-    
-    // Le logo disparaît à la fin pour simuler le passage "à travers" l'écran
-    logoZoomOpacity.value = withDelay(startZoomDelay + 600, withTiming(0, {
-      duration: 400,
-      easing: Easing.in(Easing.quad),
-    }, () => {
-      // Callback exécuté à la fin de l'animation
-      runOnJS(handleFinish)();
-    }));
+  useEffect(() => {
+    if (showCubes) {
+      // 📅 Phase 2 : Animation des cubes avec délais échelonnés
+      const maxDelay = Math.max(...cubes.map(cube => cube.delay));
+      const animationDuration = 400; // Durée d'animation de chaque cube
+      const totalDuration = maxDelay + animationDuration + 200; // +200ms de marge
+      
+      // 🏁 Fin de l'intro après que tous les cubes soient apparus
+      const finishTimer = setTimeout(() => {
+        runOnJS(handleFinish)();
+      }, totalDuration);
 
-  }, [duration, logoOpacity, logoTranslateY, sloganReveal, logoScale, logoZoomOpacity, sloganZoomOpacity, containerScale]);
-
-  // 🎨 Styles animés pour le logo
-  const logoStyle = useAnimatedStyle(() => ({
-    opacity: logoOpacity.value * logoZoomOpacity.value,
-    transform: [
-      { translateY: logoTranslateY.value },
-      { scale: logoScale.value }
-    ],
-  }));
-
-  // 🎨 Style pour la révélation progressive du slogan
-  const sloganContainerStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(sloganReveal.value, [0, 0.2, 1], [0, 1, 1]) * sloganZoomOpacity.value;
-    return {
-      opacity,
-    };
-  });
-
-  const sloganMaskStyle = useAnimatedStyle(() => {
-    // Calcule la largeur visible du masque (de 0% à 100%)
-    const maskWidth = interpolate(sloganReveal.value, [0, 1], [0, 100]);
-    return {
-      position: 'absolute' as const,
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: '#0062FF', // Même couleur que le fond
-      width: `${100 - maskWidth}%`,
-      marginLeft: `${maskWidth}%`,
-    };
-  });
-
-  // 🎨 Style pour le container principal avec effet de zoom global
-  const containerStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: containerScale.value }],
-  }));
+      return () => clearTimeout(finishTimer);
+    }
+  }, [showCubes, cubes]);
 
   if (!isVisible) {
     return null;
@@ -185,30 +102,80 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({
 
   return (
     <View className="relative flex-1" style={{ backgroundColor: '#0062FF' }}>
-      {/* 🎯 Logo et slogan centrés avec animations séquentielles */}
-      <Animated.View style={containerStyle} className="flex-1 items-center justify-center px-8">
-        
-        {/* Logo principal avec effet de zoom */}
-        <Animated.View style={logoStyle} className="mb-4">
-          <SvgXml
-            xml={logoSvg}
-            width="280"
-            height="42"
-          />
-        </Animated.View>
-        
-        {/* Slogan avec effet de révélation */}
-        <Animated.View style={sloganContainerStyle} className="relative overflow-hidden">
-          <SvgXml
-            xml={sloganSvg}
-            width="300"
-            height="32"
-          />
-          {/* Masque pour l'effet de révélation */}
-          <Animated.View style={sloganMaskStyle} />
-        </Animated.View>
-        
-      </Animated.View>
+      {/* 🎯 Logo centré (affichage statique) */}
+      <View className="flex-1 items-center justify-center px-8">
+        <SvgXml
+          xml={logoSvg}
+          width={280}
+          height={42}
+        />
+      </View>
+
+      {/* 🧩 Grille de cubes blancs animés */}
+      {showCubes && cubes.map((cube) => (
+        <CubeComponent
+          key={cube.id}
+          left={cube.left}
+          top={cube.top}
+          width={CUBE_SIZE}
+          height={CUBE_SIZE}
+          delay={cube.delay}
+        />
+      ))}
     </View>
+  );
+};
+
+// 🧩 Composant Cube individuel avec animation
+interface CubeComponentProps {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+  delay: number;
+}
+
+const CubeComponent: React.FC<CubeComponentProps> = ({
+  left,
+  top,
+  width,
+  height,
+  delay,
+}) => {
+  const scale = useSharedValue(0);
+  const opacity = useSharedValue(0);
+
+  useEffect(() => {
+    // 🎭 Animation: apparition avec scale + opacity
+    scale.value = withDelay(delay, withTiming(1, {
+      duration: 400,
+      easing: Easing.out(Easing.back(1.2)), // Petit effet "bounce" élégant
+    }));
+    
+    opacity.value = withDelay(delay, withTiming(1, {
+      duration: 400,
+      easing: Easing.out(Easing.quad),
+    }));
+  }, [delay, scale, opacity]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+    opacity: opacity.value,
+  }));
+
+  return (
+    <Animated.View
+      style={[
+        animatedStyle,
+        {
+          position: 'absolute',
+          left,
+          top,
+          width,
+          height,
+          backgroundColor: 'white',
+        },
+      ]}
+    />
   );
 };
