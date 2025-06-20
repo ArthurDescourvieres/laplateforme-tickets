@@ -21,14 +21,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) 
 
   // Fonction pour calculer la position cible en pixels
   const getTargetPosition = (tab: string): number => {
-    console.log('🎯 getTargetPosition appelée avec:', {
-      tab,
-      containerWidth,
-      activeTab
-    });
-    
     if (containerWidth === 0) {
-      console.log('⚠️ containerWidth est 0, retour 0');
       return 0;
     }
     
@@ -41,37 +34,20 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) 
       'profile': (tabWidth * 2.5) - (indicatorWidth / 2),
     };
     
-    const result = positions[tab] || 0;
-    console.log('📍 Positions calculées:', {
-      tabWidth,
-      indicatorWidth,
-      positions,
-      selectedTab: tab,
-      targetPosition: result
-    });
-    
-    return result;
+    return positions[tab] || 0;
   };
 
   // Animation du trait quand l'onglet actif change
   useEffect(() => {
-    console.log('🔄 useEffect triggered:', {
-      activeTab,
-      previousActiveTab: previousActiveTab.value,
-      containerWidth,
-      currentTranslateX: translateX.value
-    });
-    
     if (containerWidth > 0) {
       const targetPosition = getTargetPosition(activeTab);
-      console.log('🎯 Animation vers:', targetPosition);
       
       // Vérifier si c'est un vrai changement d'onglet
       const isFirstLoad = previousActiveTab.value === '';
       const hasTabChanged = activeTab !== previousActiveTab.value && !isFirstLoad;
       
       if (isFirstLoad) {
-        console.log('🎬 Premier chargement - Position directe:', targetPosition);
+        // Premier chargement - Position directe
         translateX.value = targetPosition;
         // Animation douce d'apparition du trait
         indicatorOpacity.value = withTiming(1, {
@@ -80,9 +56,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) 
         });
         previousActiveTab.value = activeTab;
       } else if (hasTabChanged) {
-        console.log('✅ Changement détecté:', previousActiveTab.value, '→', activeTab);
-        console.log('💫 Animation de', translateX.value, 'vers', targetPosition);
-        
+        // Changement d'onglet - Animation fluide
         translateX.value = withTiming(targetPosition, {
           duration: 300,
           easing: Easing.out(Easing.quad),
@@ -91,22 +65,20 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) 
         // Mettre à jour l'onglet précédent APRÈS l'animation
         previousActiveTab.value = activeTab;
       } else {
-        console.log('🔄 Re-render du container, position directe:', targetPosition);
+        // Re-render du container - Position directe
         translateX.value = targetPosition;
         // S'assurer que le trait est visible
         if (indicatorOpacity.value === 0) {
           indicatorOpacity.value = 1;
         }
       }
-    } else {
-      console.log('❌ Container pas encore mesuré - containerWidth:', containerWidth);
     }
   }, [activeTab, containerWidth]);
 
   // Style animé pour le trait
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],
-    opacity: indicatorOpacity.value, // Animation douce d'apparition
+    opacity: indicatorOpacity.value,
   }));
 
   const NavButton = ({ 
@@ -122,10 +94,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) 
     
     return (
       <TouchableOpacity
-        onPress={() => {
-          console.log('🔘 Bouton cliqué:', name, '(ancien activeTab:', activeTab, ')');
-          onTabChange(name);
-        }}
+        onPress={() => onTabChange(name)}
         className="flex-1 items-center justify-center py-4 relative"
         activeOpacity={0.7}
       >
@@ -158,7 +127,6 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) 
         }}
         onLayout={(event) => {
           const { width } = event.nativeEvent.layout;
-          console.log('📏 onLayout - Container width:', width);
           setContainerWidth(width);
         }}
       >
