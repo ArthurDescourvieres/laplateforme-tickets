@@ -6,7 +6,8 @@ import Animated, {
   withTiming, 
   withDelay,
   Easing,
-  interpolate
+  interpolate,
+  runOnJS
 } from 'react-native-reanimated';
 import { SvgXml } from 'react-native-svg';
 
@@ -79,9 +80,20 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({
   
   // 🎯 Animation pour la révélation progressive du slogan
   const sloganReveal = useSharedValue(0); // 0 = invisible, 1 = complètement visible
+  
+  // 🚀 Nouvelles animations pour l'effet de zoom spectaculaire
+  const logoScale = useSharedValue(1);
+  const logoZoomOpacity = useSharedValue(1);
+  const sloganZoomOpacity = useSharedValue(1);
+  const containerScale = useSharedValue(1);
+
+  const handleFinish = () => {
+    setIsVisible(false);
+    onFinish();
+  };
 
   useEffect(() => {
-    // 🎯 Phase 1 : Animation du logo principal
+    // 🎯 Phase 1 : Animation du logo principal (0-1200ms)
     logoOpacity.value = withDelay(400, withTiming(1, { 
       duration: 1200, 
       easing: Easing.out(Easing.cubic) 
@@ -92,30 +104,56 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({
       easing: Easing.out(Easing.cubic) 
     }));
 
-    // 🎯 Phase 2 : Révélation progressive du slogan de gauche à droite
+    // 🎯 Phase 2 : Révélation progressive du slogan (1700-2900ms)
     sloganReveal.value = withDelay(1700, withTiming(1, { 
       duration: 1200, 
       easing: Easing.out(Easing.cubic) 
     }));
 
-    // Timer de fin
-    const timer = setTimeout(() => {
-      setIsVisible(false);
-      onFinish();
-    }, duration);
+    // 🚀 Phase 3 : Effet de zoom spectaculaire (3200ms+)
+    const startZoomDelay = 3200;
+    
+    // Le logo commence à grossir de manière exponentielle
+    logoScale.value = withDelay(startZoomDelay, withTiming(5, {
+      duration: 800,
+      easing: Easing.in(Easing.quad)
+    }));
+    
+    // Le container entier se met à grossir pour amplifier l'effet
+    containerScale.value = withDelay(startZoomDelay + 200, withTiming(1.5, {
+      duration: 600,
+      easing: Easing.in(Easing.cubic)
+    }));
+    
+    // Le slogan disparaît en fondu
+    sloganZoomOpacity.value = withDelay(startZoomDelay, withTiming(0, {
+      duration: 400,
+      easing: Easing.out(Easing.quad)
+    }));
+    
+    // Le logo disparaît à la fin pour simuler le passage "à travers" l'écran
+    logoZoomOpacity.value = withDelay(startZoomDelay + 600, withTiming(0, {
+      duration: 400,
+      easing: Easing.in(Easing.quad),
+    }, () => {
+      // Callback exécuté à la fin de l'animation
+      runOnJS(handleFinish)();
+    }));
 
-    return () => clearTimeout(timer);
-  }, [duration, onFinish, logoOpacity, logoTranslateY, sloganReveal]);
+  }, [duration, logoOpacity, logoTranslateY, sloganReveal, logoScale, logoZoomOpacity, sloganZoomOpacity, containerScale]);
 
   // 🎨 Styles animés pour le logo
   const logoStyle = useAnimatedStyle(() => ({
-    opacity: logoOpacity.value,
-    transform: [{ translateY: logoTranslateY.value }],
+    opacity: logoOpacity.value * logoZoomOpacity.value,
+    transform: [
+      { translateY: logoTranslateY.value },
+      { scale: logoScale.value }
+    ],
   }));
 
   // 🎨 Style pour la révélation progressive du slogan
   const sloganContainerStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(sloganReveal.value, [0, 0.2, 1], [0, 1, 1]);
+    const opacity = interpolate(sloganReveal.value, [0, 0.2, 1], [0, 1, 1]) * sloganZoomOpacity.value;
     return {
       opacity,
     };
@@ -136,6 +174,11 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({
     };
   });
 
+  // 🎨 Style pour le container principal avec effet de zoom global
+  const containerStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: containerScale.value }],
+  }));
+
   if (!isVisible) {
     return null;
   }
@@ -143,9 +186,9 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({
   return (
     <View className="relative flex-1" style={{ backgroundColor: '#0062FF' }}>
       {/* 🎯 Logo et slogan centrés avec animations séquentielles */}
-      <View className="flex-1 items-center justify-center px-8">
+      <Animated.View style={containerStyle} className="flex-1 items-center justify-center px-8">
         
-        {/* Logo principal */}
+        {/* Logo principal avec effet de zoom */}
         <Animated.View style={logoStyle} className="mb-4">
           <SvgXml
             xml={logoSvg}
@@ -165,7 +208,7 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({
           <Animated.View style={sloganMaskStyle} />
         </Animated.View>
         
-      </View>
+      </Animated.View>
     </View>
   );
 };
