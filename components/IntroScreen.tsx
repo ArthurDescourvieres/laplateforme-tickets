@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Image, Dimensions } from 'react-native';
+import { View, Image } from 'react-native';
 import { AnimatedCube } from './AnimatedCube';
 
 interface IntroScreenProps {
@@ -7,22 +7,80 @@ interface IntroScreenProps {
   duration?: number; // durée en millisecondes
 }
 
-export const IntroScreen: React.FC<IntroScreenProps> = ({ 
-  onFinish, 
-  duration = 3000 // 3 secondes par défaut
+export const IntroScreen: React.FC<IntroScreenProps> = ({
+  onFinish,
+  duration = 3000, // 3 secondes par défaut
 }) => {
   const [isVisible, setIsVisible] = useState(true);
 
-  // Configuration des 8 cubes selon tes spécifications
+  // Configuration des 8 cubes selon les nouvelles spécifications
+  // Tailles aléatoires entre 6-14px, opacités entre 0.05-0.12
+  // Positions dispersées de façon asymétrique, loin du logo (éviter zone 40-70% X et 45-75% Y)
   const cubes = [
-    { size: 12, opacity: 0.1, positionX: 20, positionY: 15, movementType: 'vertical' as const, delay: 0 },
-    { size: 8, opacity: 0.08, positionX: 70, positionY: 10, movementType: 'horizontal' as const, delay: 200 },
-    { size: 16, opacity: 0.15, positionX: 10, positionY: 35, movementType: 'wave' as const, delay: 400 },
-    { size: 12, opacity: 0.12, positionX: 80, positionY: 40, movementType: 'circular' as const, delay: 600 },
-    { size: 8, opacity: 0.07, positionX: 55, positionY: 60, movementType: 'oscillate' as const, delay: 800 },
-    { size: 16, opacity: 0.1, positionX: 25, positionY: 75, movementType: 'diagonal' as const, delay: 1000 },
-    { size: 12, opacity: 0.05, positionX: 90, positionY: 80, movementType: 'sinus' as const, delay: 1200 },
-    { size: 12, opacity: 0.08, positionX: 5, positionY: 90, movementType: 'cyclique' as const, delay: 1400 },
+    {
+      size: 8,
+      opacity: 0.08,
+      positionX: 12,
+      positionY: 18,
+      animationType: 'breathY' as const,
+      delay: 0,
+    },
+    {
+      size: 6,
+      opacity: 0.05,
+      positionX: 78,
+      positionY: 12,
+      animationType: 'floatX' as const,
+      delay: 400,
+    },
+    {
+      size: 11,
+      opacity: 0.09,
+      positionX: 10,
+      positionY: 84,
+      animationType: 'breathX' as const,
+      delay: 800,
+    },
+    {
+      size: 14,
+      opacity: 0.12,
+      positionX: 85,
+      positionY: 78,
+      animationType: 'floatY' as const,
+      delay: 1200,
+    },
+    {
+      size: 7,
+      opacity: 0.06,
+      positionX: 25,
+      positionY: 8,
+      animationType: 'breathY' as const,
+      delay: 600,
+    },
+    {
+      size: 9,
+      opacity: 0.07,
+      positionX: 88,
+      positionY: 25,
+      animationType: 'floatX' as const,
+      delay: 1000,
+    },
+    {
+      size: 12,
+      opacity: 0.1,
+      positionX: 5,
+      positionY: 35,
+      animationType: 'breathX' as const,
+      delay: 200,
+    },
+    {
+      size: 10,
+      opacity: 0.08,
+      positionX: 92,
+      positionY: 88,
+      animationType: 'floatY' as const,
+      delay: 1400,
+    },
   ];
 
   useEffect(() => {
@@ -39,7 +97,7 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({
   }
 
   return (
-    <View className="flex-1 relative" style={{ backgroundColor: '#0062FF' }}>
+    <View className="relative flex-1" style={{ backgroundColor: '#0062FF' }}>
       {/* Cubes animés en arrière-plan */}
       {cubes.map((cube, index) => (
         <AnimatedCube
@@ -48,19 +106,19 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({
           opacity={cube.opacity}
           positionX={cube.positionX}
           positionY={cube.positionY}
-          movementType={cube.movementType}
+          animationType={cube.animationType}
           delay={cube.delay}
         />
       ))}
-      
+
       {/* Logo centré à ~60% de la hauteur */}
       <View className="flex-1 items-center justify-center" style={{ paddingTop: '10%' }}>
         <Image
           source={require('../assets/logo.png')}
-          className="w-32 h-32"
+          className="h-16 w-auto"
           resizeMode="contain"
         />
       </View>
     </View>
   );
-}; 
+};

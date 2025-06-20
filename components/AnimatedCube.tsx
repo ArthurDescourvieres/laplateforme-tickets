@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { View } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -14,7 +13,7 @@ interface AnimatedCubeProps {
   opacity: number;
   positionX: number; // en pourcentage
   positionY: number; // en pourcentage
-  movementType: 'vertical' | 'horizontal' | 'circular' | 'diagonal' | 'wave' | 'oscillate' | 'sinus' | 'cyclique';
+  animationType: 'breathX' | 'breathY' | 'floatX' | 'floatY';
   delay?: number;
 }
 
@@ -23,7 +22,7 @@ export const AnimatedCube: React.FC<AnimatedCubeProps> = ({
   opacity,
   positionX,
   positionY,
-  movementType,
+  animationType,
   delay = 0,
 }) => {
   const animationValue = useSharedValue(0);
@@ -40,57 +39,38 @@ export const AnimatedCube: React.FC<AnimatedCubeProps> = ({
         true // reverse (aller-retour)
       );
     }, delay);
-  }, [delay]);
+  }, [delay, animationValue]);
 
   const animatedStyle = useAnimatedStyle(() => {
     let translateX = 0;
     let translateY = 0;
 
-    switch (movementType) {
-      case 'vertical':
-        // Monte et redescend lentement
-        translateY = interpolate(animationValue.value, [0, 1], [0, -20]);
+    // Animations subtiles de type "respiration" ou "flottement"
+    const movement = interpolate(animationValue.value, [0, 1], [-1, 1]);
+
+    switch (animationType) {
+      case 'breathX':
+        // Respiration horizontale douce (±6 à 10px)
+        translateX = movement * (6 + Math.random() * 4);
         break;
-      case 'horizontal':
-        // Flotte vers la gauche puis droite
-        translateX = interpolate(animationValue.value, [0, 1], [0, -15]);
+      case 'breathY':
+        // Respiration verticale douce (±6 à 10px)
+        translateY = movement * (6 + Math.random() * 4);
         break;
-      case 'circular':
-        // Mouvement circulaire lent
-        translateX = interpolate(animationValue.value, [0, 1], [0, 10]) * Math.cos(animationValue.value * Math.PI * 2);
-        translateY = interpolate(animationValue.value, [0, 1], [0, 10]) * Math.sin(animationValue.value * Math.PI * 2);
+      case 'floatX':
+        // Flottement horizontal plus large
+        translateX = movement * (8 + Math.random() * 2);
         break;
-      case 'diagonal':
-        // Glissement diagonal
-        translateX = interpolate(animationValue.value, [0, 1], [0, 12]);
-        translateY = interpolate(animationValue.value, [0, 1], [0, 8]);
-        break;
-      case 'wave':
-        // Descend en vague
-        translateY = interpolate(animationValue.value, [0, 1], [0, 15]);
-        translateX = interpolate(animationValue.value, [0, 1], [0, 8]) * Math.sin(animationValue.value * Math.PI * 3);
-        break;
-      case 'oscillate':
-        // Oscillation verticale douce
-        translateY = interpolate(animationValue.value, [0, 1], [-8, 8]);
-        break;
-      case 'sinus':
-        // Sinus horizontal
-        translateX = interpolate(animationValue.value, [0, 1], [-12, 12]) * Math.sin(animationValue.value * Math.PI * 2);
-        break;
-      case 'cyclique':
-        // Mouvement en Y cyclique
-        translateY = interpolate(animationValue.value, [0, 1], [-10, 10]) * Math.sin(animationValue.value * Math.PI * 4);
+      case 'floatY':
+        // Flottement vertical plus large
+        translateY = movement * (8 + Math.random() * 2);
         break;
       default:
         break;
     }
 
     return {
-      transform: [
-        { translateX },
-        { translateY },
-      ],
+      transform: [{ translateX }, { translateY }],
     };
   });
 
@@ -108,7 +88,7 @@ export const AnimatedCube: React.FC<AnimatedCubeProps> = ({
         },
         animatedStyle,
       ]}
-      className="rounded-sm"
+      // Coins nets, pas de border-radius
     />
   );
-}; 
+};

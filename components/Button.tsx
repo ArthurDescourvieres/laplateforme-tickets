@@ -8,13 +8,13 @@ interface ButtonProps extends TouchableOpacityProps {
   fullWidth?: boolean;
 }
 
-export const Button: React.FC<ButtonProps> = ({ 
-  title, 
-  variant = 'primary', 
-  size = 'md', 
+export const Button: React.FC<ButtonProps> = ({
+  title,
+  variant = 'primary',
+  size = 'md',
   fullWidth = false,
   className,
-  ...props 
+  ...props
 }) => {
   const getVariantStyles = () => {
     switch (variant) {
@@ -25,7 +25,7 @@ export const Button: React.FC<ButtonProps> = ({
       case 'danger':
         return 'bg-red-500 hover:bg-red-600 active:bg-red-700';
       case 'success':
-        return 'bg-green-500 hover:bg-green-600 active:bg-green-700';
+        return 'bg-yellow-500 hover:bg-yellow-600 active:bg-yellow-700';
       default:
         return 'bg-blue-500 hover:bg-blue-600 active:bg-blue-700';
     }
@@ -64,13 +64,10 @@ export const Button: React.FC<ButtonProps> = ({
   const textSizeStyles = getTextSizeStyles();
 
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       className={`${baseStyles} ${variantStyles} ${sizeStyles} ${widthStyles} ${className || ''}`}
-      {...props}
-    >
-      <Text className={`text-white font-semibold ${textSizeStyles}`}>
-        {title}
-      </Text>
+      {...props}>
+      <Text className={`font-semibold text-white ${textSizeStyles}`}>{title}</Text>
     </TouchableOpacity>
   );
-}; 
+};

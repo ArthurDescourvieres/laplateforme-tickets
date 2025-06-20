@@ -3,20 +3,34 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import { Button } from './components/Button';
 import { Card } from './components/Card';
+import { IntroScreen } from './components/IntroScreen';
+import { TestIntro } from './components/TestIntro';
 
 import './global.css';
 
 export default function App() {
   const [count, setCount] = useState(0);
   const [isDark, setIsDark] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
+  const [showTestMode, setShowTestMode] = useState(false);
+
+  // Afficher l'intro si elle est active
+  if (showIntro) {
+    return <IntroScreen onFinish={() => setShowIntro(false)} duration={4000} />;
+  }
+
+  // Mode test pour l'intro
+  if (showTestMode) {
+    return <TestIntro />;
+  }
 
   return (
     <View className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
       <StatusBar style={isDark ? 'light' : 'dark'} />
-      
+
       <ScrollView className="flex-1 px-4 pt-12">
         {/* En-tête */}
-        <View className="items-center mb-8">
+        <View className="mb-8 items-center">
           <Text className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} mb-2`}>
             🎉 Expo + NativeWind
           </Text>
@@ -27,20 +41,21 @@ export default function App() {
 
         {/* Carte principale */}
         <Card variant="elevated" padding="lg" isDark={isDark} className="mb-6">
-          <Text className={`text-xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'} mb-4 text-center`}>
+          <Text
+            className={`text-xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'} mb-4 text-center`}>
             Compteur: {count}
           </Text>
-          
-          <View className="flex-row justify-center space-x-4 mb-4">
-            <Button 
+
+          <View className="mb-4 flex-row justify-center space-x-4">
+            <Button
               title="-"
               variant="danger"
               size="lg"
               onPress={() => setCount(count - 1)}
               className="w-16"
             />
-            
-            <Button 
+
+            <Button
               title="+"
               variant="primary"
               size="lg"
@@ -48,13 +63,8 @@ export default function App() {
               className="w-16"
             />
           </View>
-          
-          <Button 
-            title="Reset"
-            variant="secondary"
-            onPress={() => setCount(0)}
-            fullWidth
-          />
+
+          <Button title="Reset" variant="secondary" onPress={() => setCount(0)} fullWidth />
         </Card>
 
         {/* Section fonctionnalités */}
@@ -62,7 +72,7 @@ export default function App() {
           <Text className={`text-lg font-semibold ${isDark ? 'text-white' : 'text-gray-900'} mb-4`}>
             ✨ Fonctionnalités
           </Text>
-          
+
           <View className="space-y-2">
             <Text className={`${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
               • 🎨 Tailwind CSS intégré
@@ -83,14 +93,24 @@ export default function App() {
         </Card>
 
         {/* Bouton thème */}
-        <TouchableOpacity 
+        <Button
+          title={isDark ? '☀️ Mode Clair' : '🌙 Mode Sombre'}
+          variant={isDark ? 'success' : 'primary'}
+          size="lg"
+          fullWidth
           onPress={() => setIsDark(!isDark)}
-          className={`${isDark ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-purple-500 hover:bg-purple-600'} px-6 py-4 rounded-xl mb-8`}
-        >
-          <Text className="text-white font-semibold text-center text-lg">
-            {isDark ? '☀️ Mode Clair' : '🌙 Mode Sombre'}
-          </Text>
-        </TouchableOpacity>
+          className="mb-4"
+        />
+
+        {/* Bouton test intro */}
+        <Button
+          title="🎯 Tester l'intro"
+          variant="secondary"
+          size="md"
+          fullWidth
+          onPress={() => setShowTestMode(true)}
+          className="mb-8"
+        />
 
         {/* Footer */}
         <View className="items-center pb-8">

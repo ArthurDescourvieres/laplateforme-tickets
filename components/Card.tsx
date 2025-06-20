@@ -7,17 +7,17 @@ interface CardProps extends ViewProps {
   isDark?: boolean;
 }
 
-export const Card: React.FC<CardProps> = ({ 
+export const Card: React.FC<CardProps> = ({
   children,
   variant = 'default',
   padding = 'md',
   isDark = false,
   className,
-  ...props 
+  ...props
 }) => {
   const getVariantStyles = () => {
     const baseColor = isDark ? 'bg-gray-800' : 'bg-white';
-    
+
     switch (variant) {
       case 'default':
         return baseColor;
@@ -50,11 +50,10 @@ export const Card: React.FC<CardProps> = ({
   const paddingStyles = getPaddingStyles();
 
   return (
-    <View 
+    <View
       className={`${baseStyles} ${variantStyles} ${paddingStyles} ${className || ''}`}
-      {...props}
-    >
+      {...props}>
       {children}
     </View>
   );
-}; 
+};

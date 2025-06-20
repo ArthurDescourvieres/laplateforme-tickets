@@ -47,10 +47,43 @@ npm start
 
 L'application de démonstration inclut :
 
-1. **Compteur interactif** - Boutons pour incrémenter/décrémenter
-2. **Changement de thème** - Basculer entre mode clair et sombre
-3. **Interface moderne** - Design avec des cartes et des ombres
-4. **Responsive** - S'adapte à toutes les tailles d'écran
+1. **Écran d'intro animé** - 8 cubes blancs translucides avec animations fluides sur fond bleu
+2. **Compteur interactif** - Boutons pour incrémenter/décrémenter
+3. **Changement de thème** - Basculer entre mode clair et sombre
+4. **Interface moderne** - Design avec des cartes et des ombres
+5. **Mode test intro** - Bouton pour revoir l'animation d'intro
+6. **Responsive** - S'adapte à toutes les tailles d'écran
+
+## 🌀 Écran d'intro avec animations
+
+L'application commence par un écran d'intro élégant qui présente :
+
+### 🎯 Spécifications techniques
+- **Fond bleu** : `#0062FF` en plein écran
+- **Logo** : Centré à ~60% de la hauteur de l'écran
+- **8 cubes animés** : Blancs translucides avec mouvements fluides
+- **Durée** : 4 secondes (configurable)
+
+### 🧊 Configuration des cubes (style moderne et subtil)
+| Cube | Taille | Opacité | Position | Animation | Délai |
+|------|--------|---------|-----------|-----------|-------|
+| 1 | 8x8px | 0.08 | 12%, 18% | Respiration Y | 0ms |
+| 2 | 6x6px | 0.05 | 78%, 12% | Flottement X | 400ms |
+| 3 | 11x11px | 0.09 | 10%, 84% | Respiration X | 800ms |
+| 4 | 14x14px | 0.12 | 85%, 78% | Flottement Y | 1200ms |
+| 5 | 7x7px | 0.06 | 25%, 8% | Respiration Y | 600ms |
+| 6 | 9x9px | 0.07 | 88%, 25% | Flottement X | 1000ms |
+| 7 | 12x12px | 0.10 | 5%, 35% | Respiration X | 200ms |
+| 8 | 10x10px | 0.08 | 92%, 88% | Flottement Y | 1400ms |
+
+### 🔧 Animations subtiles type "respiration digitale"
+- **Tailles** : Variables entre 6-14px pour donner de la profondeur
+- **Opacités** : Entre 0.05-0.12 pour un effet très léger
+- **Mouvements** : ±6 à 10px en translation douce
+- **Durée** : 4-6 secondes avec variations aléatoires
+- **Easing** : `ease-in-out` pour des mouvements naturels
+- **Positionnement** : Asymétrique, évite la zone du logo
+- **Style** : Coins nets, aucun effet visuel (pas de glow/ombre)
 
 ## 🎨 Utilisation de NativeWind
 
