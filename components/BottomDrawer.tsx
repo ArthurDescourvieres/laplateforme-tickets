@@ -15,7 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { X, AlertCircle, FileText, Flag } from 'lucide-react-native';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-const DRAWER_HEIGHT = SCREEN_HEIGHT * 0.55; // Réduit à 55% pour éviter le scroll
+const DRAWER_HEIGHT = SCREEN_HEIGHT * 0.55;
 
 interface BottomDrawerProps {
   isVisible: boolean;
@@ -25,54 +25,43 @@ interface BottomDrawerProps {
 export const BottomDrawer: React.FC<BottomDrawerProps> = ({ isVisible, onClose }) => {
   const insets = useSafeAreaInsets();
   
-  // Le drawer commence depuis le CENTRE de la navbar pour éviter de voir les angles carrés
   const NAVBAR_MARGIN_BOTTOM = Math.max(insets.bottom, 16);
-  const NAVBAR_HEIGHT = 72; // Hauteur approximative de la navbar
+  const NAVBAR_HEIGHT = 72;
   const START_FROM_NAVBAR_CENTER = NAVBAR_MARGIN_BOTTOM + (NAVBAR_HEIGHT / 2);
   const SNAP_POINT = SCREEN_HEIGHT - DRAWER_HEIGHT - START_FROM_NAVBAR_CENTER;
   
-  // Position initiale : légèrement sous la position finale pour une animation plus raffinée
-  const HIDDEN_POSITION = SNAP_POINT + 100; // 100px sous la position finale
+  const HIDDEN_POSITION = SNAP_POINT + 100;
   const translateY = useSharedValue(HIDDEN_POSITION);
   const backdropOpacity = useSharedValue(0);
 
-  // Animation d'ouverture/fermeture raffinée
   useEffect(() => {
     if (isVisible) {
-      // Ouvrir le drawer : glisse depuis juste sous la navbar
       translateY.value = withSpring(SNAP_POINT, {
         damping: 20,
         stiffness: 300,
       });
       backdropOpacity.value = withTiming(0.5, { duration: 300 });
     } else {
-      // Fermer le drawer : retourne juste sous la navbar
       translateY.value = withTiming(HIDDEN_POSITION, { duration: 300 });
       backdropOpacity.value = withTiming(0, { duration: 300 });
     }
   }, [isVisible, translateY, backdropOpacity, SNAP_POINT, HIDDEN_POSITION]);
 
-  // Gestionnaire pour le glissement (pan gesture)
   const panGesture = Gesture.Pan()
-    .onStart(() => {
-      // Géré automatiquement par la nouvelle API
-    })
     .onUpdate((event) => {
       const newY = SNAP_POINT + event.translationY;
-      // Empêcher de glisser au-dessus du snap point
       translateY.value = Math.max(newY, SNAP_POINT);
     })
     .onEnd((event) => {
       const shouldClose = 
-        translateY.value > SNAP_POINT + 150 || // Glissé assez loin vers le bas
-        event.velocityY > 600; // Vitesse de glissement rapide vers le bas
+        translateY.value > SNAP_POINT + 150 || 
+        event.velocityY > 600;
 
       if (shouldClose) {
         translateY.value = withTiming(HIDDEN_POSITION, { duration: 300 });
         backdropOpacity.value = withTiming(0, { duration: 300 });
         runOnJS(onClose)();
       } else {
-        // Revenir au snap point
         translateY.value = withSpring(SNAP_POINT, {
           damping: 20,
           stiffness: 300,
@@ -80,7 +69,6 @@ export const BottomDrawer: React.FC<BottomDrawerProps> = ({ isVisible, onClose }
       }
     });
 
-  // Gestionnaire pour le tap sur le backdrop
   const backdropTapGesture = Gesture.Tap()
     .onEnd(() => {
       translateY.value = withTiming(HIDDEN_POSITION, { duration: 300 });
@@ -88,7 +76,6 @@ export const BottomDrawer: React.FC<BottomDrawerProps> = ({ isVisible, onClose }
       runOnJS(onClose)();
     });
 
-  // Styles animés
   const drawerAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: translateY.value }],
   }));
@@ -101,7 +88,6 @@ export const BottomDrawer: React.FC<BottomDrawerProps> = ({ isVisible, onClose }
 
   return (
     <View className="absolute inset-0 z-40" pointerEvents={isVisible ? 'auto' : 'none'}>
-      {/* Backdrop avec gesture de tap */}
       <GestureDetector gesture={backdropTapGesture}>
         <Animated.View 
           className="absolute inset-0 bg-black/50"
@@ -109,18 +95,16 @@ export const BottomDrawer: React.FC<BottomDrawerProps> = ({ isVisible, onClose }
         />
       </GestureDetector>
 
-      {/* Container de masquage pour cacher le drawer quand il passe sous la navbar */}
       <View 
         className="absolute"
         style={{
           top: 0,
           left: 0,
           right: 0,
-          bottom: NAVBAR_MARGIN_BOTTOM + (NAVBAR_HEIGHT / 2), // S'arrête au milieu de la navbar (là où le drawer commence normalement)
-          overflow: 'hidden', // Masque tout ce qui dépasse
+          bottom: NAVBAR_MARGIN_BOTTOM + (NAVBAR_HEIGHT / 2),
+          overflow: 'hidden',
         }}
       >
-        {/* Drawer */}
         <GestureDetector gesture={panGesture}>
           <Animated.View
             className="absolute bg-white dark:bg-gray-900 rounded-t-3xl shadow-2xl"
@@ -128,8 +112,8 @@ export const BottomDrawer: React.FC<BottomDrawerProps> = ({ isVisible, onClose }
               drawerAnimatedStyle,
               {
                 height: DRAWER_HEIGHT,
-                left: 17, // Ajusté pour compenser la bordure de la navbar (16px + 1px bordure)
-                right: 17, // Ajusté pour compenser la bordure de la navbar (16px + 1px bordure)
+                left: 17,
+                right: 17,
                 shadowColor: '#000',
                 shadowOffset: { width: 0, height: -8 },
                 shadowOpacity: 0.15,
@@ -138,12 +122,10 @@ export const BottomDrawer: React.FC<BottomDrawerProps> = ({ isVisible, onClose }
               },
             ]}
           >
-          {/* Handle pour indiquer qu'on peut glisser */}
           <View className="items-center py-3">
             <View className="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full" />
           </View>
 
-          {/* Header */}
           <View className="flex-row items-center justify-between px-6 pb-4 border-b border-gray-200 dark:border-gray-700">
             <View className="flex-row items-center">
               <View className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-xl mr-3">
@@ -162,9 +144,7 @@ export const BottomDrawer: React.FC<BottomDrawerProps> = ({ isVisible, onClose }
             </TouchableOpacity>
           </View>
 
-          {/* Formulaire simplifié de création de ticket */}
           <View className="flex-1 px-6 py-4">
-            {/* Titre du ticket */}
             <View className="mb-4">
               <View className="flex-row items-center mb-2">
                 <AlertCircle size={14} color="#3B82F6" />
@@ -180,7 +160,6 @@ export const BottomDrawer: React.FC<BottomDrawerProps> = ({ isVisible, onClose }
               />
             </View>
 
-            {/* Priorité */}
             <View className="mb-4">
               <View className="flex-row items-center mb-2">
                 <Flag size={14} color="#EF4444" />
@@ -213,7 +192,6 @@ export const BottomDrawer: React.FC<BottomDrawerProps> = ({ isVisible, onClose }
               </View>
             </View>
 
-            {/* Description */}
             <View className="mb-6">
               <View className="flex-row items-center mb-2">
                 <FileText size={14} color="#6B7280" />
@@ -231,7 +209,6 @@ export const BottomDrawer: React.FC<BottomDrawerProps> = ({ isVisible, onClose }
               />
             </View>
 
-            {/* Boutons d'action */}
             <View className="flex-row space-x-3">
               <TouchableOpacity
                 onPress={onClose}
@@ -244,7 +221,6 @@ export const BottomDrawer: React.FC<BottomDrawerProps> = ({ isVisible, onClose }
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
-                  // Ici vous pouvez ajouter la logique de création du ticket
                   console.log('Ticket créé !');
                   onClose();
                 }}
