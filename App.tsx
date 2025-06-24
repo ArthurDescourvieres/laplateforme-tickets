@@ -1,8 +1,7 @@
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
-import { Button } from './components/Button';
-import { Card } from './components/Card';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { IntroScreen } from './components/IntroScreen';
 import { BottomNav } from './components/BottomNav';
 import { SimpleContent } from './components/SimpleContent';
@@ -35,12 +34,18 @@ export default function App() {
   // 🚀 Intro avec préchargement du contenu en arrière-plan
   if (showIntro) {
     return (
-      <IntroScreen onFinish={() => setShowIntro(false)} duration={4000}>
-        <MainContent activeTab={activeTab} isDark={isDark} onTabChange={setActiveTab} />
-      </IntroScreen>
+      <SafeAreaProvider>
+        <IntroScreen onFinish={() => setShowIntro(false)} duration={4000}>
+          <MainContent activeTab={activeTab} isDark={isDark} onTabChange={setActiveTab} />
+        </IntroScreen>
+      </SafeAreaProvider>
     );
   }
 
   // Une fois l'intro terminée, afficher directement le contenu principal
-  return <MainContent activeTab={activeTab} isDark={isDark} onTabChange={setActiveTab} />;
+  return (
+    <SafeAreaProvider>
+      <MainContent activeTab={activeTab} isDark={isDark} onTabChange={setActiveTab} />
+    </SafeAreaProvider>
+  );
 }

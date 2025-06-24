@@ -6,6 +6,7 @@ import Animated, {
   withTiming,
   Easing 
 } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Home, Plus, User } from 'lucide-react-native';
 
 interface BottomNavProps {
@@ -18,6 +19,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) 
   const translateX = useSharedValue(0);
   const indicatorOpacity = useSharedValue(0);
   const previousActiveTab = useSharedValue('');
+  const insets = useSafeAreaInsets();
 
   // Fonction pour calculer la position cible en pixels
   const getTargetPosition = (tab: string): number => {
@@ -113,7 +115,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) 
   return (
     <View className="absolute bottom-0 left-0 right-0">
       <View 
-        className="bg-white/95 dark:bg-gray-900/95 mx-4 mb-8 border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-xl relative"
+        className="bg-white/95 dark:bg-gray-900/95 mx-4 border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-xl relative"
         style={{ 
           borderRadius: 30,
           shadowColor: '#000',
@@ -124,6 +126,8 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) 
           shadowOpacity: 0.1,
           shadowRadius: 24,
           elevation: 12,
+          // 🛡️ Respecter les safe areas pour éviter les barres de navigation système
+          marginBottom: Math.max(insets.bottom, 16), // Au minimum 16px (mb-4), sinon la safe area
         }}
         onLayout={(event) => {
           const { width } = event.nativeEvent.layout;

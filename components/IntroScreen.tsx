@@ -120,7 +120,7 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({
     <View className="relative flex-1">
       {/* 🎯 Contenu principal (préchargé en arrière-plan) */}
       {isContentReady && children && (
-        <View className="absolute inset-0">
+        <View className="absolute inset-0" style={{ zIndex: 1 }}>
           {children}
         </View>
       )}
@@ -128,7 +128,10 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({
       {/* 🎭 Couche d'animation (par-dessus le contenu) */}
       <Animated.View 
         className="absolute inset-0" 
-        style={[{ backgroundColor: '#0062FF' }, introAnimatedStyle]}
+        style={[
+          { backgroundColor: '#0062FF', zIndex: 10, elevation: 20 }, 
+          introAnimatedStyle
+        ]}
       >
         {/* 🎯 Logo centré (affichage statique) */}
         <View className="flex-1 items-center justify-center px-8">
