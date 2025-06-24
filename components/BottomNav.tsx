@@ -114,24 +114,24 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) 
   // Animation de l'icône Plus quand le drawer est visible
   useEffect(() => {
     if (isDrawerVisible) {
-      // Animation d'activation : rotation 45° et légère augmentation de taille
+      // Animation d'activation douce et moderne
       plusIconRotation.value = withTiming(45, {
-        duration: 300,
-        easing: Easing.out(Easing.back(1.5)),
+        duration: 400,
+        easing: Easing.out(Easing.back(1.2)),
       });
-      plusIconScale.value = withTiming(1.1, {
-        duration: 300,
-        easing: Easing.out(Easing.back(1.5)),
+      plusIconScale.value = withTiming(1.12, {
+        duration: 400,
+        easing: Easing.out(Easing.back(1.2)),
       });
     } else {
-      // Animation de désactivation : retour à 0° et taille normale
+      // Animation de désactivation douce et fluide
       plusIconRotation.value = withTiming(0, {
-        duration: 300,
-        easing: Easing.out(Easing.quad),
+        duration: 450,
+        easing: Easing.out(Easing.cubic),
       });
       plusIconScale.value = withTiming(1, {
-        duration: 300,
-        easing: Easing.out(Easing.quad),
+        duration: 450,
+        easing: Easing.out(Easing.back(1.1)),
       });
     }
   }, [isDrawerVisible, plusIconRotation, plusIconScale]);

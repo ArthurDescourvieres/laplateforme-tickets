@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, TouchableOpacity, Text, Dimensions, TextInput } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -25,25 +25,50 @@ interface BottomDrawerProps {
 export const BottomDrawer: React.FC<BottomDrawerProps> = ({ isVisible, onClose }) => {
   const insets = useSafeAreaInsets();
   
+  // État pour gérer si le composant doit être rendu dans le DOM
+  const [shouldRender, setShouldRender] = useState(false);
+  
   const NAVBAR_MARGIN_BOTTOM = Math.max(insets.bottom, 16);
   const NAVBAR_HEIGHT = 72;
   const START_FROM_NAVBAR_CENTER = NAVBAR_MARGIN_BOTTOM + (NAVBAR_HEIGHT / 2);
   const SNAP_POINT = SCREEN_HEIGHT - DRAWER_HEIGHT - START_FROM_NAVBAR_CENTER;
   
-  const HIDDEN_POSITION = SNAP_POINT + 100;
+  // Position cachée : complètement en bas de l'écran + un peu plus pour un effet naturel
+  const HIDDEN_POSITION = SCREEN_HEIGHT + 50;
   const translateY = useSharedValue(HIDDEN_POSITION);
   const backdropOpacity = useSharedValue(0);
 
+  // Fonction appelée à la fin de l'animation de sortie pour démonter le composant
+  const handleAnimationComplete = () => {
+    setShouldRender(false);
+  };
+
   useEffect(() => {
     if (isVisible) {
+      // Monter le composant immédiatement
+      setShouldRender(true);
+      
+      // Animation d'entrée douce et moderne
       translateY.value = withSpring(SNAP_POINT, {
-        damping: 20,
-        stiffness: 300,
+        damping: 30,
+        stiffness: 200,
+        mass: 1.2,
+        overshootClamping: true, // Empêche le dépassement au-delà de la valeur cible
       });
-      backdropOpacity.value = withTiming(0.5, { duration: 300 });
+      backdropOpacity.value = withTiming(0.5, { duration: 400 });
     } else {
-      translateY.value = withTiming(HIDDEN_POSITION, { duration: 300 });
-      backdropOpacity.value = withTiming(0, { duration: 300 });
+      // Animation de sortie douce et fluide
+      translateY.value = withSpring(HIDDEN_POSITION, { 
+        damping: 25,
+        stiffness: 150,
+        mass: 1.0,
+      }, (finished) => {
+        // Démonter le composant seulement après la fin de l'animation
+        if (finished) {
+          runOnJS(handleAnimationComplete)();
+        }
+      });
+      backdropOpacity.value = withTiming(0, { duration: 350 });
     }
   }, [isVisible, translateY, backdropOpacity, SNAP_POINT, HIDDEN_POSITION]);
 
@@ -58,21 +83,42 @@ export const BottomDrawer: React.FC<BottomDrawerProps> = ({ isVisible, onClose }
         event.velocityY > 600;
 
       if (shouldClose) {
-        translateY.value = withTiming(HIDDEN_POSITION, { duration: 300 });
-        backdropOpacity.value = withTiming(0, { duration: 300 });
+        // Animation de sortie douce et cohérente
+        translateY.value = withSpring(HIDDEN_POSITION, { 
+          damping: 25,
+          stiffness: 150,
+          mass: 1.0,
+        }, (finished) => {
+          if (finished) {
+            runOnJS(handleAnimationComplete)();
+          }
+        });
+        backdropOpacity.value = withTiming(0, { duration: 350 });
         runOnJS(onClose)();
       } else {
+        // Animation de rebond douce
         translateY.value = withSpring(SNAP_POINT, {
-          damping: 20,
-          stiffness: 300,
+          damping: 30,
+          stiffness: 200,
+          mass: 1.2,
+          overshootClamping: true, // Cohérence avec l'animation d'entrée
         });
       }
     });
 
   const backdropTapGesture = Gesture.Tap()
     .onEnd(() => {
-      translateY.value = withTiming(HIDDEN_POSITION, { duration: 300 });
-      backdropOpacity.value = withTiming(0, { duration: 300 });
+      // Animation de sortie douce et cohérente
+      translateY.value = withSpring(HIDDEN_POSITION, { 
+        damping: 25,
+        stiffness: 150,
+        mass: 1.0,
+      }, (finished) => {
+        if (finished) {
+          runOnJS(handleAnimationComplete)();
+        }
+      });
+      backdropOpacity.value = withTiming(0, { duration: 350 });
       runOnJS(onClose)();
     });
 
@@ -84,7 +130,8 @@ export const BottomDrawer: React.FC<BottomDrawerProps> = ({ isVisible, onClose }
     opacity: backdropOpacity.value,
   }));
 
-  if (!isVisible) return null;
+  // Ne pas rendre le composant si shouldRender est false
+  if (!shouldRender) return null;
 
   return (
     <View className="absolute inset-0 z-40" pointerEvents={isVisible ? 'auto' : 'none'}>
@@ -167,7 +214,7 @@ export const BottomDrawer: React.FC<BottomDrawerProps> = ({ isVisible, onClose }
                   Priorité
                 </Text>
               </View>
-              <View className="flex-row space-x-2">
+              <View className="flex-row space-x-2 gap-2">
                 {[
                   { label: 'Basse', color: '#10B981' },
                   { label: 'Moyenne', color: '#F59E0B' },
@@ -210,15 +257,6 @@ export const BottomDrawer: React.FC<BottomDrawerProps> = ({ isVisible, onClose }
             </View>
 
             <View className="flex-row space-x-3">
-              <TouchableOpacity
-                onPress={onClose}
-                className="flex-1 p-3 bg-gray-100 dark:bg-gray-800 rounded-xl"
-                activeOpacity={0.7}
-              >
-                <Text className="text-center font-semibold text-gray-700 dark:text-gray-300">
-                  Annuler
-                </Text>
-              </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
                   console.log('Ticket créé !');
