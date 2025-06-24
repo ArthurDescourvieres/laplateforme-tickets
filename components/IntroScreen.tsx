@@ -74,7 +74,7 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({
   const handleFinish = () => {
     // 🎭 Transition fluide : fondu de l'intro vers le contenu
     introOpacity.value = withTiming(0, {
-      duration: 300,
+      duration: 200, // Réduit de 300ms à 200ms pour une transition plus rapide
       easing: Easing.out(Easing.quad),
     }, (finished) => {
       if (finished) {
@@ -100,12 +100,15 @@ export const IntroScreen: React.FC<IntroScreenProps> = ({
       // 📅 Phase 2 : Animation des cubes avec délais échelonnés
       const maxDelay = Math.max(...cubes.map(cube => cube.delay));
       const animationDuration = 400; // Durée d'animation de chaque cube
-      const totalDuration = maxDelay + animationDuration + 200; // +200ms de marge
       
-      // 🏁 Fin de l'intro après que tous les cubes soient apparus
+      // 🚀 OPTIMISATION : Commencer la transition quand 80% des cubes sont apparus
+      // plutôt que d'attendre la fin complète
+      const optimizedDuration = maxDelay + (animationDuration * 0.8); // 80% de l'animation des derniers cubes
+      
+      // 🏁 Fin de l'intro optimisée
       const finishTimer = setTimeout(() => {
         runOnJS(handleFinish)();
-      }, totalDuration);
+      }, optimizedDuration);
 
       return () => clearTimeout(finishTimer);
     }
