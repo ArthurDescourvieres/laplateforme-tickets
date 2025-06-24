@@ -21,6 +21,10 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) 
   const previousActiveTab = useSharedValue('');
   const insets = useSafeAreaInsets();
 
+  // Animation pour l'icône Plus
+  const plusIconRotation = useSharedValue(0);
+  const plusIconScale = useSharedValue(1);
+
   // Fonction pour calculer la position cible en pixels
   const getTargetPosition = (tab: string): number => {
     if (containerWidth === 0) {
@@ -48,18 +52,29 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) 
       const isFirstLoad = previousActiveTab.value === '';
       const hasTabChanged = activeTab !== previousActiveTab.value && !isFirstLoad;
       
+      // Le trait disparaît si on est sur le bouton 'add'
+      const shouldShowIndicator = activeTab !== 'add';
+      
       if (isFirstLoad) {
         // Premier chargement - Position directe
         translateX.value = targetPosition;
-        // Animation douce d'apparition du trait
-        indicatorOpacity.value = withTiming(1, {
+        // Animation douce d'apparition du trait seulement si ce n'est pas 'add'
+        indicatorOpacity.value = withTiming(shouldShowIndicator ? 1 : 0, {
           duration: 300,
           easing: Easing.out(Easing.quad),
         });
         previousActiveTab.value = activeTab;
       } else if (hasTabChanged) {
         // Changement d'onglet - Animation fluide
-        translateX.value = withTiming(targetPosition, {
+        if (shouldShowIndicator) {
+          translateX.value = withTiming(targetPosition, {
+            duration: 300,
+            easing: Easing.out(Easing.quad),
+          });
+        }
+        
+        // Animation de l'opacité du trait
+        indicatorOpacity.value = withTiming(shouldShowIndicator ? 1 : 0, {
           duration: 300,
           easing: Easing.out(Easing.quad),
         });
@@ -69,18 +84,49 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) 
       } else {
         // Re-render du container - Position directe
         translateX.value = targetPosition;
-        // S'assurer que le trait est visible
-        if (indicatorOpacity.value === 0) {
-          indicatorOpacity.value = 1;
-        }
+        // S'assurer que le trait a la bonne opacité
+        indicatorOpacity.value = shouldShowIndicator ? 1 : 0;
       }
     }
   }, [activeTab, containerWidth]);
+
+  // Animation de l'icône Plus
+  useEffect(() => {
+    if (activeTab === 'add') {
+      // Animation d'activation : rotation 45° et légère augmentation de taille
+      plusIconRotation.value = withTiming(45, {
+        duration: 300,
+        easing: Easing.out(Easing.back(1.5)),
+      });
+      plusIconScale.value = withTiming(1.1, {
+        duration: 300,
+        easing: Easing.out(Easing.back(1.5)),
+      });
+    } else {
+      // Animation de désactivation : retour à 0° et taille normale
+      plusIconRotation.value = withTiming(0, {
+        duration: 300,
+        easing: Easing.out(Easing.quad),
+      });
+      plusIconScale.value = withTiming(1, {
+        duration: 300,
+        easing: Easing.out(Easing.quad),
+      });
+    }
+  }, [activeTab]);
 
   // Style animé pour le trait
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],
     opacity: indicatorOpacity.value,
+  }));
+
+  // Style animé pour l'icône Plus
+  const plusIconAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { rotate: `${plusIconRotation.value}deg` },
+      { scale: plusIconScale.value }
+    ],
   }));
 
   const NavButton = ({ 
@@ -94,6 +140,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) 
   }) => {
     const isActive = activeTab === name;
     
+    // Design normal pour les boutons latéraux (Home et Profile)
     return (
       <TouchableOpacity
         onPress={() => onTabChange(name)}
@@ -107,6 +154,53 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) 
         />
         <Text className={`text-xs font-medium mt-1 ${isActive ? 'text-blue-500' : 'text-gray-500'}`}>
           {label}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
+
+  // Bouton Plus séparé en position absolute
+  const AddButton = () => {
+    const isActive = activeTab === 'add';
+    
+    return (
+      <TouchableOpacity
+        onPress={() => onTabChange('add')}
+        className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-3 items-center justify-center z-10"
+        activeOpacity={0.8}
+        style={{
+          // Position absolute centrée
+          left: '50%',
+          top: -12,
+          transform: [{ translateX: -32 }], // -w-16/2 pour centrer
+        }}
+      >
+        {/* Container du bouton */}
+        <Animated.View 
+          className={`w-16 h-16 rounded-full items-center justify-center shadow-lg ${
+            isActive ? 'bg-blue-600' : 'bg-blue-500'
+          }`}
+          style={{
+            shadowColor: '#3B82F6',
+            shadowOffset: {
+              width: 0,
+              height: 4,
+            },
+            shadowOpacity: 0.3,
+            shadowRadius: 8,
+            elevation: 8,
+          }}
+        >
+          <Animated.View style={plusIconAnimatedStyle}>
+            <Plus
+              size={28}
+              color="white"
+              strokeWidth={2.5}
+            />
+          </Animated.View>
+        </Animated.View>
+        <Text className={`text-xs font-medium mt-1 ${isActive ? 'text-blue-500' : 'text-blue-400'}`}>
+          Nouveau
         </Text>
       </TouchableOpacity>
     );
@@ -140,17 +234,18 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onTabChange }) 
           style={animatedStyle}
         />
         
+        {/* Bouton Plus en position absolute */}
+        <AddButton />
+        
+        {/* Barre de navigation avec seulement les boutons latéraux */}
         <View className="flex-row">
           <NavButton
             name="home"
             IconComponent={Home}
             label="Accueil"
           />
-          <NavButton
-            name="add"
-            IconComponent={Plus}
-            label="Nouveau"
-          />
+          {/* Espace central vide pour laisser la place au bouton Plus */}
+          <View className="flex-1" />
           <NavButton
             name="profile"
             IconComponent={User}
