@@ -7,92 +7,85 @@ interface SimpleContentProps {
   isDark: boolean;
 }
 
-export const SimpleContent: React.FC<SimpleContentProps> = ({ activeTab, isDark }) => {
-  
-  const renderContent = () => {
+export const SimpleContent = ({ activeTab, isDark }: SimpleContentProps) => {
+  const getContentByTab = () => {
     switch (activeTab) {
       case 'home':
         return (
-          <ScrollView className="flex-1 px-6 pt-16 pb-32" showsVerticalScrollIndicator={false}>
-            <Text className={`text-3xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-800'}`}>
+          <View className="flex-1 p-6">
+            <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
               🏠 Accueil
             </Text>
-            <Text className={`text-lg mb-8 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-              Bienvenue sur votre plateforme de tickets !
-            </Text>
-            
-            <View className={`p-6 rounded-2xl mb-4 ${isDark ? 'bg-gray-800' : 'bg-white'} shadow-sm`}>
-              <Text className={`text-xl font-semibold mb-3 ${isDark ? 'text-white' : 'text-gray-800'}`}>
-                📊 Statistiques
+            <View className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+              <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                Plateforme de Tickets
               </Text>
-              <Text className={`${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                • Tickets ouverts: 5{'\n'}
-                • Tickets fermés: 12{'\n'}
-                • En attente: 3
+              <Text className="text-gray-600 dark:text-gray-300 mb-4">
+                Cliquez sur le bouton "+" en bas pour créer un nouveau ticket. Le formulaire s'ouvrira dans un drawer au-dessus de cette page.
               </Text>
+              <View className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-200 dark:border-blue-800">
+                <Text className="text-blue-700 dark:text-blue-300 font-medium">
+                  💡 Astuce : Vous pouvez fermer le drawer en glissant vers le bas ou en cliquant à l'extérieur.
+                </Text>
+              </View>
             </View>
 
-            <View className={`p-6 rounded-2xl mb-4 ${isDark ? 'bg-gray-800' : 'bg-white'} shadow-sm`}>
-              <Text className={`text-xl font-semibold mb-3 ${isDark ? 'text-white' : 'text-gray-800'}`}>
-                🎯 Tickets récents
+            {/* Section statistiques */}
+            <View className="mt-6 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+              <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                📊 Statistiques des tickets
               </Text>
-              <Text className={`${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                • Problème de connexion (#001){'\n'}
-                • Demande de fonctionnalité (#002){'\n'}
-                • Bug interface (#003)
-              </Text>
-            </View>
-          </ScrollView>
-        );
-
-      case 'add':
-        return (
-          <ScrollView className="flex-1 px-6 pt-16 pb-32" showsVerticalScrollIndicator={false}>
-            <Text className={`text-3xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-800'}`}>
-              ➕ Nouveau Ticket
-            </Text>
-            <Text className={`text-lg mb-8 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-              Créez un nouveau ticket ici
-            </Text>
-            
-            <View className={`p-6 rounded-2xl mb-4 ${isDark ? 'bg-gray-800' : 'bg-white'} shadow-sm`}>
-              <Text className={`text-xl font-semibold mb-4 ${isDark ? 'text-white' : 'text-gray-800'}`}>
-                📝 Nouveau ticket
-              </Text>
-              <View className="space-y-4">
-                <View className={`p-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-100'}`}>
-                  <Text className={`font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                    📌 Titre du ticket
-                  </Text>
+              <View className="flex-row justify-between">
+                <View className="items-center">
+                  <Text className="text-2xl font-bold text-red-500">12</Text>
+                  <Text className="text-sm text-gray-500 dark:text-gray-400">Ouverts</Text>
                 </View>
-                <View className={`p-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-100'}`}>
-                  <Text className={`font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                    📄 Description détaillée
-                  </Text>
+                <View className="items-center">
+                  <Text className="text-2xl font-bold text-yellow-500">5</Text>
+                  <Text className="text-sm text-gray-500 dark:text-gray-400">En cours</Text>
                 </View>
-                <View className={`p-4 rounded-lg ${isDark ? 'bg-gray-700' : 'bg-gray-100'}`}>
-                  <Text className={`font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-                    ⚡ Priorité du ticket
-                  </Text>
+                <View className="items-center">
+                  <Text className="text-2xl font-bold text-green-500">28</Text>
+                  <Text className="text-sm text-gray-500 dark:text-gray-400">Fermés</Text>
                 </View>
               </View>
             </View>
-          </ScrollView>
+          </View>
         );
-
       case 'profile':
-        return <LucideShowcase />;
-
+        return (
+          <View className="flex-1 p-6">
+            <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+              👤 Profil
+            </Text>
+            <View className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+              <Text className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                Paramètres du profil
+              </Text>
+              <Text className="text-gray-600 dark:text-gray-300">
+                Gérez vos informations personnelles et préférences.
+              </Text>
+            </View>
+          </View>
+        );
       default:
         return (
-          <View className="flex-1 items-center justify-center">
-            <Text className={`text-xl ${isDark ? 'text-white' : 'text-gray-800'}`}>
-              Page non trouvée
+          <View className="flex-1 justify-center items-center p-6">
+            <Text className="text-xl text-gray-500 dark:text-gray-400">
+              Contenu non trouvé
             </Text>
           </View>
         );
     }
   };
 
-  return renderContent();
+  return (
+    <ScrollView 
+      className="flex-1"
+      contentContainerStyle={{ flexGrow: 1 }}
+      showsVerticalScrollIndicator={false}
+    >
+      {getContentByTab()}
+    </ScrollView>
+  );
 }; 

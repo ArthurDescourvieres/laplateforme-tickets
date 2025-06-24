@@ -4,3 +4,5 @@ globs:
 alwaysApply: true
 ---
 Ce projet est juste un genre de bac à sable ou je code des composants pour ensuite les intégrer dans un autr projet qui contient une sturcture un peu différentes mais qui est codé avec les mêmes technologies. Le but est donc de coder des composants qui pourrant etre copié et collé dans l'autre projet de manière simple.
+
+Quand tu mets en place un composant tu dois TOUJOURS faire attention à ce qu'il corresponde aux safe areas des différents type de mobiles.

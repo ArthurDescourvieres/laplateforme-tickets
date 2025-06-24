@@ -2,6 +2,7 @@ import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import React, { useState } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { IntroScreen } from './components/IntroScreen';
 import { BottomNav } from './components/BottomNav';
 import { SimpleContent } from './components/SimpleContent';
@@ -34,18 +35,22 @@ export default function App() {
   // 🚀 Intro avec préchargement du contenu en arrière-plan
   if (showIntro) {
     return (
-      <SafeAreaProvider>
-        <IntroScreen onFinish={() => setShowIntro(false)} duration={4000}>
-          <MainContent activeTab={activeTab} isDark={isDark} onTabChange={setActiveTab} />
-        </IntroScreen>
-      </SafeAreaProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SafeAreaProvider>
+          <IntroScreen onFinish={() => setShowIntro(false)} duration={4000}>
+            <MainContent activeTab={activeTab} isDark={isDark} onTabChange={setActiveTab} />
+          </IntroScreen>
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
     );
   }
 
   // Une fois l'intro terminée, afficher directement le contenu principal
   return (
-    <SafeAreaProvider>
-      <MainContent activeTab={activeTab} isDark={isDark} onTabChange={setActiveTab} />
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <MainContent activeTab={activeTab} isDark={isDark} onTabChange={setActiveTab} />
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
