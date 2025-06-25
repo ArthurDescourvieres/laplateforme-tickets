@@ -13,6 +13,7 @@ import {
 } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { X, AlertCircle, FileText, Flag } from 'lucide-react-native';
+import { NavbarMeasurements } from './useNavbarMeasurements';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const DRAWER_HEIGHT = SCREEN_HEIGHT * 0.55;
@@ -20,18 +21,17 @@ const DRAWER_HEIGHT = SCREEN_HEIGHT * 0.55;
 interface BottomDrawerProps {
   isVisible: boolean;
   onClose: () => void;
+  measurements: NavbarMeasurements;
 }
 
-export const BottomDrawer: React.FC<BottomDrawerProps> = ({ isVisible, onClose }) => {
+export const BottomDrawer: React.FC<BottomDrawerProps> = ({ isVisible, onClose, measurements }) => {
   const insets = useSafeAreaInsets();
   
   // État pour gérer si le composant doit être rendu dans le DOM
   const [shouldRender, setShouldRender] = useState(false);
   
-  const NAVBAR_MARGIN_BOTTOM = Math.max(insets.bottom, 16);
-  const NAVBAR_HEIGHT = 72;
-  const START_FROM_NAVBAR_CENTER = NAVBAR_MARGIN_BOTTOM + (NAVBAR_HEIGHT / 2);
-  const SNAP_POINT = SCREEN_HEIGHT - DRAWER_HEIGHT - START_FROM_NAVBAR_CENTER;
+  // Utiliser les mesures partagées au lieu de valeurs hardcodées
+  const SNAP_POINT = measurements.isReady ? measurements.drawerSnapPoint : SCREEN_HEIGHT;
   
   // Position cachée : complètement en bas de l'écran + un peu plus pour un effet naturel
   const HIDDEN_POSITION = SCREEN_HEIGHT + 50;
@@ -148,26 +148,26 @@ export const BottomDrawer: React.FC<BottomDrawerProps> = ({ isVisible, onClose }
           top: 0,
           left: 0,
           right: 0,
-          bottom: NAVBAR_MARGIN_BOTTOM + (NAVBAR_HEIGHT / 2),
+          bottom: measurements.isReady ? (measurements.navbarMarginBottom + (measurements.navbarHeight / 2)) : 0,
           overflow: 'hidden',
         }}
       >
         <GestureDetector gesture={panGesture}>
           <Animated.View
             className="absolute bg-white dark:bg-gray-900 rounded-t-3xl shadow-2xl"
-            style={[
-              drawerAnimatedStyle,
-              {
-                height: DRAWER_HEIGHT,
-                left: 17,
-                right: 17,
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: -8 },
-                shadowOpacity: 0.15,
-                shadowRadius: 20,
-                elevation: 25,
-              },
-            ]}
+                          style={[
+                drawerAnimatedStyle,
+                {
+                  height: DRAWER_HEIGHT,
+                  left: measurements.isReady ? measurements.drawerLeft : 17,
+                  right: measurements.isReady ? measurements.drawerRight : 17,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: -8 },
+                  shadowOpacity: 0.15,
+                  shadowRadius: 20,
+                  elevation: 25,
+                },
+              ]}
           >
           <View className="items-center py-3">
             <View className="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full" />

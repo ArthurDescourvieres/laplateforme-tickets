@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { IntroScreen } from './components/IntroScreen';
-import { BottomNav } from './components/BottomNav';
+import { BottomNavContainer } from './components/BottomNavContainer';
 import { SimpleContent } from './components/SimpleContent';
 
 import './global.css';
@@ -20,7 +20,7 @@ const MainContent = ({ activeTab, isDark, onTabChange }: {
       <StatusBar style={isDark ? 'light' : 'dark'} />
       <SimpleContent activeTab={activeTab} isDark={isDark} />
       
-      <BottomNav activeTab={activeTab} onTabChange={onTabChange} />
+      <BottomNavContainer activeTab={activeTab} onTabChange={onTabChange} />
     </View>
   );
 };
